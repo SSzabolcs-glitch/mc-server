@@ -1,0 +1,34 @@
+# material names must be as specified using the bukkit material ENUM CONSTANTS as found here: https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse/src/main/java/org/bukkit/Material.java
+farmer_material: WHEAT
+fisherman_material: COD
+shepard_material: WHITE_WOOL
+fletcher_material: ARROW
+librarian_material: BOOK
+cartographer_material: FILLED_MAP
+cleric_material: REDSTONE
+armorer_material: GOLD_INGOT
+weapon_smith_material: IRON_INGOT
+tool_smith_material: STICK
+mason_smith_material: STONE
+butcher_material: BEEF
+leatherworker_material: LEATHER
+nitwit_material: RED_MUSHROOM
+zombie_material: ROTTEN_FLESH
+
+# worlds: [name of world] true|false - whether Profession is active in the world
+worlds:
+  world: true
+  some_other_world: false
+
+# lang: language localization for Profession messages
+# english -> EN
+# french -> FR
+# german -> DE
+# spanish -> ES
+lang: EN
+
+# consume: true|false - whether right-clicking on the villager consumes the material
+consume: false
+
+# message: true|false - whether to message the player if they don't have a valid material
+message: true

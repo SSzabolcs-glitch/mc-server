@@ -1,0 +1,10 @@
+# CreeperHeal2 World List
+
+# Either blacklist or whitelist
+worldlist-type: blacklist
+
+# Worlds are provided as a list like this
+# worlds:
+#   - survivalworld
+#   - survivalworld_nether
+#   - another
