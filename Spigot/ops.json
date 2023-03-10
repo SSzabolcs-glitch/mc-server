@@ -12,8 +12,20 @@
     "bypassesPlayerLimit": false
   },
   {
+    "uuid": "b6a8baab-ef15-3658-aae6-ccd08998cb14",
+    "name": "Rudy",
+    "level": 4,
+    "bypassesPlayerLimit": false
+  },
+  {
     "uuid": "1cf03c59-33ab-3d62-821c-98f32aa87a2a",
     "name": "Delinator",
+    "level": 4,
+    "bypassesPlayerLimit": false
+  },
+  {
+    "uuid": "33a3f686-d577-30ed-bd6c-43ffa0e8e15b",
+    "name": "ZOTyo",
     "level": 4,
     "bypassesPlayerLimit": false
   }

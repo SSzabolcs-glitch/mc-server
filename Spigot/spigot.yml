@@ -118,6 +118,8 @@ world-settings:
     dragon-death-sound-radius: 0
     arrow-despawn-rate: 1200
     trident-despawn-rate: 1200
+  worldeditregentempworld:
+    verbose: false
 commands:
   silent-commandblock-console: false
   log: true

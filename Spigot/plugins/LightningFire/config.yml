@@ -1,0 +1,10 @@
+
+
+# If set to true, lightning will not spawn fire
+DisableLightningFire: true
+
+
+# Even if DisableLightningFire is true, continue allowing fire to spawn on these blocks
+AllowedBlocks:
+ - netherrack
+ - magma

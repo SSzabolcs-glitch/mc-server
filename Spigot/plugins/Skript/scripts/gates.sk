@@ -1,0 +1,308 @@
+options:
+	Max Gate Size: 1000 # The amount of blocks that can be used per gate
+	Gate Time: 0.7 seconds # The time of each animation stage
+	Tool: bedrock # The tool used to create gates
+	Default Block: fence # The default block used
+	Enable Json: false # Set to true to enable json messages in /gatehelp. Requires json.sk found here: https://forums.skunity.com/t/json-sk-v1-1-skript-2-2-working-json-messages-for-1-8-3/70
+script load:
+	loop {gates::*}:
+		delete {gatetoggled::%loop-index%}
+command /gate [<text>]:
+	permission: gate.add
+	trigger:
+		if arg is not set:
+			if {temp::%player%::gate} is not set:
+				send "&cYou don't have a gate selected. Use /gate <name>"
+				stop
+			send "&6You have unselected &c%{temp::%player%::gate}%&6."
+			delete {temp::%player%::gate}
+			stop
+		set {temp::%player%::gate} to "%arg%"
+		send "&6You have entered the gate editor for &a%{temp::%player%::gate}%&6 use &c/gate&6 to exit."
+right click:
+	{temp::%player%::gate} is set
+	player's gamemode is creative
+	player's tool is not {@Tool}
+	{gate::%{temp::%player%::gate}%::%y coord of block% %location of targeted block%} is set
+	set {gatepaint::%{temp::%player%::gate}%::%y coord of targeted block% %location of targeted block%::open} to tool of player
+	{gatetoggle::%{temp::%player%::gate}%} is not set:
+		set targeted block to tool of player
+	cancel event
+	send "&6You have &aPainted &3%location of targeted block%&6 as &3%tool of player% &6for &3%{temp::%player%::gate}% OPEN&6."
+left click:
+	{temp::%player%::gate} is set
+	player's gamemode is creative
+	player's tool is not {@Tool}
+	{gate::%{temp::%player%::gate}%::%y coord of block% %location of targeted block%} is set
+	set {gatepaint::%{temp::%player%::gate}%::%y coord of targeted block% %location of targeted block%::close} to tool of player
+	{gatetoggle::%{temp::%player%::gate}%} is set:
+		set targeted block to tool of player
+	cancel event
+	send "&6You have &aPainted &3%location of targeted block%&6 as &3%tool of player% &6for &3%{temp::%player%::gate}% CLOSE&6."
+place of {@Tool}:
+	{temp::%player%::gate} is set
+	player's gamemode is creative
+	size of {gate.%{gate.%player%}%::*} is greater than or equal to {@Max Gate Size}:
+		message "&4This gate has exceeded the place limit."
+		stop
+	if {gates::%{temp::%player%::gate}%} is not set:
+		set {gates::%{temp::%player%::gate}%} to "%{temp::%player%::gate}%"
+	if {gateblock::%{temp::%player%::gate}%} is not set:
+		set {gateblock::%{temp::%player%::gate}%} to fence
+	set {gate::%{temp::%player%::gate}%::%y coord of block% %location of block%} to location of block
+	set block to {gateblock::%{temp::%player%::gate}%}
+	send "&6You have &aadded &3%location of block%&6 to &3%{temp::%player%::gate}%&6."
+	loop {gate::%{temp::%player%::gate}%::*}:
+		block at loop-value is not {gateblock::%{temp::%player%::gate}%}
+		set block at loop-value to {gateblock::%{temp::%player%::gate}%}
+	delete {gatetoggle::%{temp::%player%::gate}%}
+break:
+	{temp::%player%::gate} is set
+	player's gamemode is creative
+	{gate::%{temp::%player%::gate}%::%y coord of block% %location of block%} is set
+	player's tool is {@Tool}
+	delete {gatepaint::%{temp::%player%::gate}%::%y coord of block% %location of block%::*}
+	delete {gate::%{temp::%player%::gate}%::%y coord of block% %location of block%}
+	send "&6You have &cremoved &3%location of block%&6 from &3%{temp::%player%::gate}%&6."
+command /gatehelp:
+	aliases: helpgate, helpgates, gateshelp
+	trigger:
+		if {@Enable Json} is true:
+			send "&e-[ &bGates Interactive Help &e]-"
+			make console execute command "json %player% &f1, Edit and Create Gates||ttp:&b&l[1] Edit and Create gates%nl%&6/gate <gate> &7- Create or Edit a Gate%nl%&6/gate &7- Exit Gate Selection%nl%%nl%&cClick to Deselect Selected Gate||cmd:/gate"
+			make console execute command "json %player% &f2, Delete Gates||ttp:&b&l[2] Delete Gates%nl%&6/delgate <gate> &7- Delete a Gate%nl%%nl%&cClick to Delete Selected Gate||cmd:/delgate %{temp::%player%::gate}%"
+			make console execute command "json %player% &f3, Toggle Gates||ttp:&b&l[3] Toggle Gates%nl%&6/togglegate <gate> &7- Toggle Gate Animation%nl%%nl%&cClick to Toggle Selected Gate||cmd:/togglegate %{temp::%player%::gate}%"
+			make console execute command "json %player% &f4, List Gates & Auto Gates||ttp:&b&l[4] List Gates & Auto Gates%nl%&6/gates &7- Lists all Gates%nl%&6/autogates &7- Lists all Auto Gates%nl%&6/gateviewall &7- Lists all Gates & Auto Gates%nl%%nl%&cClick to View all Gates & Auto Gates||cmd:/gateviewall"
+			make console execute command "json %player% &f5, Create and Remove Clickable Gates||ttp:&b&l[5] Create and Remove Clickable Gates%nl%&6/clickgate right <gate> &7- Make Target Block Trigger Gate%nl%&6/clickgate left <gate> &7- Make Target Block Trigger Gate%nl%&6/clickgate both <gate> &7- Make Target Block Trigger Gate%nl%&6right, left, both = &7 Right Click, Left Click, Click%nl%%nl%&cClick to Remove all Click Points from Selected Gate||cmd:/clickremover %{temp::%player%::gate}%"
+			make console execute command "json %player% &f6, Change Gate Blocks||ttp:&b&l[6] Change Gate Blocks%nl%&6/gatetype <gate> <block> &7- Set Block for Gate%nl%&6-Painting-%nl%&7Right Click in gate edit mode on a gate block%nl%&7to paint it as the block in your hand. Left%nl%&7click to do the same for the close animation%nl%%nl%&cClick to Change all Selected Gate Blocks to Your Hand||cmd:/gatetype %{temp::%player%::gate}% %tool of player%"
+			make console execute command "json %player% &f7, Manage Automated Gates||ttp:&b&l[7] Manage Automated Gates%nl%&6/autogate <gate> <radius> &7- Set a Radius Around%nl%&7Your Position to Automate Gate%nl%&6/delautogate &7- Deletes all Auto Gates%nl%&6/delautogate <gate> &7- Deletes Auto Gates for Gate%nl%%nl%&cClick to Delete ALL Auto Gates||cmd:/delautogate"
+		else:
+			send "&e-[ &bGates Help &e]-"
+			send "&4WIP - Currently copy and pasted from spigot page!"
+			send "&7Turn on 'Enable Json' for more information"
+			send "&6/gate <gate name> &7= set points for a gate by placing a block"
+			send "&6/gate &7= Clear gates mode so you no longer have to set points"
+			send "&6/togglegate <gate name> &7= Toggle a gate"
+			send "&6/gates &7= List all gates"
+			send "&6/clickgate <right/left/both> <gate name> &7= Set a clickable left, right or both clicked block that will toggle the gate (look at the block then issue the command)"
+			send "&6/gatetype <gate name> <block> &7= sets the block for a gate to animate. Resets all paint"
+			send "&6/clickremover (gate) &7= removes all toggle blocks or a specific gates toggle blocks"
+			send "&6/autogate <gate name> <radius> &7= Allows you to check the area around you and if someone is in the area the gate will open and if nobody is in the area the gate will close"
+			send "&6/delautogate [<gate name>] &7= Deletes all auto gates or all auto gates connected to a specific gate"
+			send "&6/autogates &7= Lists all auto gates currently active"
+			send "&6/gateviewall &7= Shows all automated gates & gates"
+			send "&6/gatehelp &7= Shows the help page"
+command /gateviewall:
+	aliases: viewallgates, viewallgate, allgateview, viewgateall
+	trigger:
+		make player execute command "/gates"
+		make player execute command "/autogates"
+command /togglegate <text>:
+	permission: gate.toggle.command
+	aliases: gatetoggle
+	usage: /togglegate <gate name>
+	trigger:
+		if {gates::%arg 1%} is not set:
+			send "&4This gate does not exist."
+			stop
+		if {gatetoggled::%arg%} is set:
+			stop
+		set {gatetoggled::%arg%} to true
+		set {_loop} to 1
+		loop {gate::%arg%::*}:
+			if {gatetoggle::%arg%} is set:
+				set {_gate} to {@Max Gate Size} - {_loop}
+				set {_gate::%{_gate}%} to loop-value
+				add 1 to {_loop}
+			else:
+				if {_y} is not y coord of loop-value:
+					wait {@Gate Time}
+				set {_y} to y coord of loop-value
+				if {gatepaint::%arg%::%loop-index%::close} is set:
+					set block at loop-value to {gatepaint::%arg%::%loop-index%::close}
+				else:
+					set block at loop-value to air
+		if {gatetoggle::%arg%} is set:
+			loop {_gate::*}:
+				if {_y} is not y coord of loop-value:
+					wait {@Gate Time}
+				set {_y} to y coord of loop-value
+				if {gatepaint::%arg%::%y coord of loop-value% %loop-value%::open} is set:
+					set block at loop-value to {gatepaint::%arg%::%y coord of loop-value% %loop-value%::open}
+				else:
+					set block at loop-value to {gateblock::%arg%}
+			delete {gatetoggle::%arg%}
+		else:
+			set {gatetoggle::%arg 1%} to true
+		delete {gatetoggled::%arg 1%}
+command /deletegate <text>:
+	permission: gate.remove
+	aliases: removegate, delgate, gateremove, gatedel, gatedelete
+	usage: /gate <gate name>
+	trigger:
+		{gates::%arg%} is not set:
+			send "&4This gate does not exist."
+			stop
+		delete {gate::%arg%::*}
+		delete {gateblock::%arg%}
+		send "&6You have deleted %arg%."
+		delete {gates::%arg%}
+		delete {gatetoggle::%arg%}
+		delete {gateauto::%arg%::*}
+		delete {gatepaint::%arg%::*}
+		loop {gateclicklocations::*}:
+			loop-index is arg
+			delete {gateclicklocations::%loop-index%}
+			delete {gateclick.%loop-value%::*}
+		if {temp::%player%::gate} is "%arg%":
+			delete {temp::%player%::gate}
+command /gatetype <text> <item>:
+	permission: gate.type
+	usage: /gatetype <gate name> <block>
+	aliases: typegate
+	trigger:
+		{gates::%arg 1%} is not set:
+			send "&4This gate does not exist."
+			stop
+		set {gateblock::%arg 1%} to arg 2
+		send "&6You have set &a%arg 1%&6 to &a%arg 2%&6."
+		loop {gate::%arg 1%::*}:
+			set block at loop-value to arg 2
+		delete {gatetoggle::%arg 1%}
+		delete {gatepaint::%arg 1%::*}
+command /gates:
+	permission: gate.list
+	aliases: gatelist, listgates, listgate
+	trigger:
+		if {gates::*} is not set:
+			send "&cNo gates to display."
+			stop
+		send "&e-[ &bActive Gates &e]-"
+		send " %{gates::*}%"
+command /clickgate <text> <text>:
+	permission: gate.toggle.click.set
+	aliases: gateclick
+	usage: /clickgate <right/left/both> <gate name>
+	trigger:
+		if {gates::%arg 2%} is not set:
+			send "&4The gate %arg 2% does not exist."
+			stop
+		arg 1 is "right", "left" or "both"
+		set {gateclick.%location of targeted block%::%arg 2%} to arg 1
+		set {gateclicklocations::%arg 2%} to location of targeted block
+		send "&6You have set &a%location of targeted block%&6 for &a%arg 1% clicks&6 pointing towards &a%arg 2%&6."
+command /clickremover [<text>]:
+	permission: gate.click.removal
+	trigger:
+		if arg is not set:
+			if {gateclicklocations::*} is not set:
+				send "&cNo click locations are set."
+				stop
+			loop {gateclicklocations::*}:
+				delete {gateclicklocations::%loop-index%}
+				delete {gateclick.%loop-value%::*}
+			send "&6You have &cremoved&6 all gate toggles."
+			stop
+		{gates::%arg%} is not set:
+			send "&4This gate does not exist."
+			stop
+		loop {gateclicklocations::*}:
+			loop-index is arg
+			delete {gateclicklocations::%loop-index%}
+			delete {gateclick.%loop-value%::*}
+			set {_} to true
+		if {_} is not set:
+			send "&cThere are no gate toggles pointing towards %arg%."
+			stop
+		send "&6You have removed anything that would point to &c%arg%&6."
+command /gateauto <text> <number>:
+	permission: gate.automation
+	aliases: gateautomation, autogate
+	usage: /gateauto <gate name> <radius>
+	trigger:
+		if {gates::%arg 1%} is not set:
+			send "&4The gate %arg 1% does not exist."
+			stop
+		set {gateauto::%arg 1%::%arg 2%} to location of player
+		send "&6You have set &a%location of player%&6 to automate &a%arg 1%&6 at a radius of &a%arg 2%&6."
+command /gatesauto:
+	aliases: autogates
+	permission: gate.automation.list
+	trigger:
+		loop {gates::*}:
+			loop {gateauto::%loop-index-1%::*}:
+				add "%loop-index-1%: Radius %loop-index-2% Location %loop-value-2%" to {_list::*}
+		if {_list::*} is not set:
+			send "&cThere are no automated gates."
+			stop
+		send "&e-[ &bAutomated Gates&e ]-"
+		send " %{_list::*}%"
+command /delgateauto [<text>]:
+	aliases: delautogate
+	permission: gate.automation.deletion
+	trigger:
+		if arg is not set:
+			loop {gates::*}:
+				{gateauto::%loop-index%::*} is set
+				delete {gateauto::%loop-index%::*}
+				set {_} to true
+			if {_} is set:
+				send "&6You have &cdeleted all&6 autogates."
+			else:
+				send "&cThere are no auto gates"
+		else:
+			if {gateauto::%arg%::*} is not set:
+				send "&c%arg% has no auto gates."
+				stop
+			delete {gateauto::%arg%::*}
+			send "&6You have &cdeleted %arg%&6's autogates."
+any movement:
+	loop {gates::*}:
+		loop {gateauto::%loop-index-1%::*}:
+			set {_loc} to loop-value-2
+			set {_number} to "%loop-index-2%" parsed as number
+			if distance between player and {_loc} is less than {_number}:
+				{gatetoggle::%loop-index-1%} is not set
+				make console execute command "togglegate %loop-index-1%"
+			else:
+				loop players in radius {_number} * 1.5 around player:
+					loop-player is set
+					loop-player is not player
+					stop
+				{gatetoggle::%loop-index-1%} is set
+				make console execute command "togglegate %loop-index-1%"
+click:
+	{gateclick.%location of clicked block%::*} is set
+	player has permission "gate.toggle.click.both"
+	loop {gateclick.%location of clicked block%::*}:
+		loop-value is "both"
+		if {gatetoggled::%loop-index%} is set:
+			add 1 to {_gatesconnected}
+			{_gatesconnected} is greater than or equal to size of {gateclick.%location of clicked block%::*}
+			cancel event
+		else:
+			make console execute command "togglegate %loop-index%"
+left click:
+	{gateclick.%location of clicked block%::*} is set
+	player has permission "gate.toggle.click.left"
+	loop {gateclick.%location of clicked block%::*}:
+		loop-value is "left"
+		if {gatetoggled::%loop-index%} is set:
+			add 1 to {_gatesconnected}
+			{_gatesconnected} is greater than or equal to size of {gateclick.%location of clicked block%::*}
+			cancel event
+		else:
+			make console execute command "togglegate %loop-index%"
+right click:
+	{gateclick.%location of clicked block%::*} is set
+	player has permission "gate.toggle.click.right"
+	loop {gateclick.%location of clicked block%::*}:
+		loop-value is "right"
+		if {gatetoggled::%loop-index%} is set:
+			add 1 to {_gatesconnected}
+			{_gatesconnected} is greater than or equal to size of {gateclick.%location of clicked block%::*}
+			cancel event
+		else:
+			make console execute command "togglegate %loop-index%"
+quit:
+	delete {temp::%player%::gate}
